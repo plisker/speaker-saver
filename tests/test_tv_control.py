@@ -1,10 +1,10 @@
 import asyncio
-from src.tv_control import check_tv_power_status
+from src.instances import tv_controller
 
 
 async def test_tv_status():
     print("Testing TV status...")
-    status = await check_tv_power_status()
+    status = await tv_controller.check_power_status()
     print(f"Status: {status}")
     print("Finished testing.")
 

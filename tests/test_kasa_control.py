@@ -1,10 +1,9 @@
 import asyncio
-from src.kasa_control import turn_off_speakers
-
+from src.instances import speakers_controller
 
 async def test_turn_off_speakers():
     print("Testing turning off speakers...")
-    await turn_off_speakers()
+    await speakers_controller.turn_off()
     print("Finished testing.")
 
 

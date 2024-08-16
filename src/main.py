@@ -1,8 +1,7 @@
 import asyncio
 import logging
 from dotenv import load_dotenv
-from src.auth import get_refresh_token, get_saved_token, refresh_access_token
-from src.spotify import check_spotify_playback
+from src.spotify_instance import spotify_controller
 from src.kasa_control import turn_off_speakers
 from src.tv_control import check_tv_power_status
 from src.utils.counter import CHECK_FREQUENCY, counter_limit, minutes_left
@@ -18,9 +17,9 @@ set_up_logging()
 async def monitor_and_control_speakers():
     """The main loop of the script, which checks to see when the speakers were last
     in use, and attempts to shut them off after idling"""
-    # Read access token from file
-    access_token = get_saved_token()
-    if not access_token:
+
+    # Ensure we have an access token
+    if not spotify_controller.access_token:
         logging.error(
             "Access token not found. Please run the authorization script first."
         )
@@ -31,7 +30,12 @@ async def monitor_and_control_speakers():
     while True:
         try:
             update_health_log("Service is running")
-            is_playing = await check_spotify_playback(access_token)
+
+            # Refresh the access token if necessary
+            await spotify_controller.refresh_access_token()
+
+            # Check if Spotify is playing
+            is_playing = await spotify_controller.check_playback()
             is_tv_on = await check_tv_power_status()
 
             if not is_playing and not is_tv_on:
@@ -57,14 +61,6 @@ async def monitor_and_control_speakers():
                 )
                 await turn_off_speakers()
                 no_playback_counter = 0  # Reset the counter after turning off speakers
-
-            # Refresh access token if needed
-            refresh_token = get_refresh_token()
-            if refresh_token:
-                new_access_token = await refresh_access_token(refresh_token)
-                if new_access_token:
-                    logging.info("Access token refreshed.")
-                    access_token = new_access_token
 
             await asyncio.sleep(CHECK_FREQUENCY * 60)
         except Exception as e:

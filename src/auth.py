@@ -1,7 +1,7 @@
 from flask import Flask, redirect, request
 
 from src.utils.logging import HEALTH_LOG_FILE
-from src.spotify_instance import spotify_controller
+from src.instances import spotify_controller
 
 app = Flask(__name__)
 

@@ -64,7 +64,6 @@ async def monitor_and_control_speakers():
         except Exception as e:
             update_health_log("Service has crashed")
             logging.error(f"An error occurred: {e}")
-            exit
 
 
 def main():

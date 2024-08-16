@@ -2,4 +2,3 @@ requests
 python-kasa
 flask
 python-dotenv
-RPi.GPIO

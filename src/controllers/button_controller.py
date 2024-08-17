@@ -2,10 +2,11 @@ import asyncio
 import logging
 import RPi.GPIO as GPIO  # type: ignore
 
+from src.controllers.singleton_base import SingletonMeta
 from src.controllers.smart_plug_controller import SmartPlugController
 
 
-class ButtonController:
+class ButtonController(metaclass=SingletonMeta):
     def __init__(
         self,
         speakers_controller: SmartPlugController,

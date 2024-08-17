@@ -1,10 +1,11 @@
 from flask import Flask, redirect, request
 
+from src.instances import get_spotify_controller
 from src.utils.logging import HEALTH_LOG_FILE
-from src.instances import spotify_controller
 
 app = Flask(__name__)
 
+spotify_controller = get_spotify_controller()
 
 @app.route("/authorize")
 def authorize():

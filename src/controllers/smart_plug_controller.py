@@ -1,8 +1,10 @@
 from kasa import SmartPlug
 import logging
 
+from src.controllers.singleton_base import SingletonMeta
 
-class SmartPlugController:
+
+class SmartPlugController(metaclass=SingletonMeta):
     def __init__(self, ip_address, name: str):
         self.ip_address = ip_address
         self.plug = SmartPlug(ip_address)

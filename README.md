@@ -115,6 +115,16 @@ WantedBy=multi-user.target
 sudo systemctl enable speaker-saver.service
 sudo systemctl start speaker-saver.service
 ```
+
+## Debugging
+
+If, on the Raspberry Pi, you get an error about the `add_event_handler`, you may need to run this after activating the venv:
+
+```bash
+sudo apt remove python3-rpi.gpio
+pip install rpi-lgpio
+```
+
 ## Health Monitoring
 SpeakerSaver logs its health status to `health.log` and makes this information available through an HTTP endpoint exposed by the Flask server. You can monitor the system’s health by visiting the `/health` endpoint provided by the Flask server and a simple log in the `/logs` endpoint.
 

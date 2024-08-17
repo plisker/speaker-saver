@@ -1,14 +1,24 @@
 from kasa import SmartPlug
 import logging
 
-from src.controllers.singleton_base import SingletonMeta
 
+class SmartPlugController:
+    _instances = {}
 
-class SmartPlugController(metaclass=SingletonMeta):
+    def __new__(cls, ip_address, name):
+        key = (name, ip_address)
+        if key not in cls._instances:
+            cls._instances[key] = super().__new__(cls)
+            cls._instances[key].__init__(ip_address, name)
+        return cls._instances[key]
+
     def __init__(self, ip_address, name: str):
+        if hasattr(self, "initialized"):
+            return
         self.ip_address = ip_address
         self.plug = SmartPlug(ip_address)
         self.name = name
+        self.initialized = True
 
     async def turn_off(self):
         try:

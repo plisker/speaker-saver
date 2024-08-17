@@ -175,7 +175,7 @@ sudo systemctl start speaker-saver.service
 
 ## Debugging
 
-If, on the Raspberry Pi, you get an error about the `add_event_handler`, you may need to run this after activating the venv:
+If, on the Raspberry Pi, you get an error about the `add_event_handler`, you [may need](https://forums.raspberrypi.com/viewtopic.php?p=2230294&sid=ed8d0635e8e6760b1919468cb751a5e1#p2230294) to run this after activating the venv:
 
 ```bash
 sudo apt remove python3-rpi.gpio

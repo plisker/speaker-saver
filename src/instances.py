@@ -16,6 +16,6 @@ tv_controller = TVController(os.getenv("TV_IP"))
 speakers_controller = SmartPlugController(os.getenv("SPEAKERS_IP"))
 mixer_controller = SmartPlugController(os.getenv("MIXER_IP"))
 
-button_controller: Optional["ButtonController"] = instantiate_button_controller(
+button_controller: Optional["ButtonController"] = instantiate_button_controller( # type: ignore
     speakers_controller, mixer_controller
 )

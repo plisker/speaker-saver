@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import time
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO # type: ignore
 
 from src.controllers.smart_plug_controller import SmartPlugController
 

@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 spotify_controller = get_spotify_controller()
 
+
 @app.route("/authorize")
 def authorize():
     auth_url = spotify_controller.get_authorization_url()

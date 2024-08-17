@@ -7,6 +7,7 @@ from src.gpio_setup import instantiate_button_controller
 
 load_dotenv()
 
+
 def get_spotify_controller():
     return SpotifyController(
         client_id=os.getenv("CLIENT_ID"),
@@ -14,16 +15,20 @@ def get_spotify_controller():
         redirect_uri="http://localhost:8888/callback",
     )
 
+
 def get_tv_controller():
     return TVController(os.getenv("TV_IP"))
 
+
 def get_speakers_controller():
-    return SmartPlugController(os.getenv("SPEAKERS_IP"), 'Speakers')
+    return SmartPlugController(os.getenv("SPEAKERS_IP"), "Speakers")
+
 
 def get_mixer_controller():
-    return SmartPlugController(os.getenv("MIXER_IP"), 'Mixer')
+    return SmartPlugController(os.getenv("MIXER_IP"), "Mixer")
+
 
 def get_button_controller():
-    return instantiate_button_controller( # type: ignore
+    return instantiate_button_controller(  # type: ignore
         get_speakers_controller(), get_mixer_controller()
     )

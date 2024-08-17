@@ -15,7 +15,6 @@ def create_env_file():
     tv_ip = input("Enter your Sony TV IP: ")
 
     with open(env_file_path, "w") as env_file:
-        env_file.write(f"source venv/bin/activate\n")
         env_file.write(f"CLIENT_ID={client_id}\n")
         env_file.write(f"CLIENT_SECRET={client_secret}\n")
         env_file.write(f"SPEAKERS_IP={speakers_ip}\n")

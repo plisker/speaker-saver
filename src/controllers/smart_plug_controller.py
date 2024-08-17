@@ -34,3 +34,12 @@ class SmartPlugController:
             logging.error(f"An error occurred: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")
             logging.error(f"Attempted to connect to IP: {self.ip_address}")
+
+    async def is_on(self) -> bool:
+        try:
+            await self.plug.update()
+            return self.plug.is_on
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            logging.error("Ensure the Kasa plug is online and accessible.")
+            logging.error(f"Attempted to connect to IP: {self.ip_address}")

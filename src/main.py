@@ -1,13 +1,22 @@
 import asyncio
+import atexit
 import logging
 from dotenv import load_dotenv
 from src.instances import spotify_controller, speakers_controller, tv_controller
 from src.utils.counter import PlaybackCounter
 from src.utils.logging import set_up_logging, update_health_log
 
+try:
+    import RPi.GPIO as GPIO
+    from src.instances import button_controller
+
+    GPIO_INSTALLED = True
+except ImportError:
+    GPIO_INSTALLED = False
+
+
 # Load environment variables from .env file
 load_dotenv()
-
 
 set_up_logging()
 
@@ -66,10 +75,18 @@ async def monitor_and_control_speakers():
             logging.error(f"An error occurred: {e}")
 
 
+def cleanup_gpio():
+    logging.info("Exiting gracefully.")
+    if GPIO_INSTALLED:
+        GPIO.cleanup()
+
+
 def main():
     logging.info("Starting the monitoring script.")
     asyncio.run(monitor_and_control_speakers())
 
+
+atexit.register(cleanup_gpio)
 
 if __name__ == "__main__":
     main()

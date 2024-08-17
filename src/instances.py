@@ -1,9 +1,10 @@
 import os
+from typing import Optional
 from src.controllers.smart_plug_controller import SmartPlugController
 from src.controllers.spotify_controller import SpotifyController
 from src.controllers.tv_controller import TVController
+from src.gpio_setup import instantiate_button_controller
 
-# Create and configure the SpotifyController instance
 spotify_controller = SpotifyController(
     client_id=os.getenv("CLIENT_ID"),
     client_secret=os.getenv("CLIENT_SECRET"),
@@ -13,3 +14,8 @@ spotify_controller = SpotifyController(
 tv_controller = TVController(os.getenv("TV_IP"))
 
 speakers_controller = SmartPlugController(os.getenv("SPEAKERS_IP"))
+mixer_controller = SmartPlugController(os.getenv("MIXER_IP"))
+
+button_controller: Optional["ButtonController"] = instantiate_button_controller(
+    speakers_controller, mixer_controller
+)

@@ -16,8 +16,8 @@ spotify_controller = SpotifyController(
 
 tv_controller = TVController(os.getenv("TV_IP"))
 
-speakers_controller = SmartPlugController(os.getenv("SPEAKERS_IP"))
-mixer_controller = SmartPlugController(os.getenv("MIXER_IP"))
+speakers_controller = SmartPlugController(os.getenv("SPEAKERS_IP"), 'Speakers')
+mixer_controller = SmartPlugController(os.getenv("MIXER_IP"), 'Mixer')
 
 button_controller: Optional["ButtonController"] = instantiate_button_controller( # type: ignore
     speakers_controller, mixer_controller

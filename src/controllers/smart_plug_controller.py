@@ -17,7 +17,7 @@ class SmartPlugController:
             else:
                 logging.info("Speakers are already off.")
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            logging.error(f"An error occurred while turning off: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")
             logging.error(f"Attempted to connect to IP: {self.ip_address}")
 
@@ -31,15 +31,17 @@ class SmartPlugController:
                 await self.plug.turn_on()
                 logging.info("Speakers turned on.")
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            logging.error(f"An error occurred while turning on: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")
             logging.error(f"Attempted to connect to IP: {self.ip_address}")
 
     async def is_on(self) -> bool:
+        logging.info(f"Checking state of the plug with IP {self.ip_address}")
         try:
             await self.plug.update()
+            logging.info(f"Speaker state came back as {self.plug.is_on}")
             return self.plug.is_on
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            logging.error(f"An error occurred while checking state: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")
             logging.error(f"Attempted to connect to IP: {self.ip_address}")

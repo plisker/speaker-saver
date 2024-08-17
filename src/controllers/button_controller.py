@@ -1,7 +1,6 @@
 import asyncio
 import logging
-import time
-import RPi.GPIO as GPIO # type: ignore
+import RPi.GPIO as GPIO  # type: ignore
 
 from src.controllers.smart_plug_controller import SmartPlugController
 
@@ -28,7 +27,7 @@ class ButtonController:
     def button_callback(self, channel):
         """Callback function that runs when the button is pressed"""
         logging.info("Button pressed.")
-        asyncio.run(self.toggle_speakers())
+        asyncio.create_task(self.toggle_speakers())
 
     async def toggle_speakers(self):
         """Toggles the state of the speakers.
@@ -38,11 +37,7 @@ class ButtonController:
 
         if is_on:
             await self.speakers_controller.turn_off()
-            time.sleep(3)
-            await self.mixer_controller.turn_off()
             logging.info("Speakers turned off manually.")
         else:
             await self.mixer_controller.turn_on()
-            time.sleep(3)
-            await self.speakers_controller.turn_on()
             logging.info("Speakers turned on manually.")

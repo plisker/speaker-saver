@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Optional
 from dotenv import load_dotenv
@@ -7,6 +8,8 @@ from src.controllers.tv_controller import TVController
 from src.gpio_setup import instantiate_button_controller
 
 load_dotenv()
+
+logging.debug("Instantiating all controllers")
 
 spotify_controller = SpotifyController(
     client_id=os.getenv("CLIENT_ID"),

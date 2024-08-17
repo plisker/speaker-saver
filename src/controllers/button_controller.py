@@ -10,7 +10,7 @@ class ButtonController:
         self,
         speakers_controller: SmartPlugController,
         mixer_controller: SmartPlugController,
-        pin: int = 27,
+        pin: int = 2,
     ):
         self.speakers_controller = speakers_controller
         self.mixer_controller = mixer_controller
@@ -27,7 +27,11 @@ class ButtonController:
     def button_callback(self, channel):
         """Callback function that runs when the button is pressed"""
         logging.info("Button pressed.")
-        asyncio.create_task(self.toggle_speakers())
+        asyncio.run(self.toggle_speakers())
+
+    def read_button_state(self):
+        logging.info(f"The button value is {GPIO.input(self.pin)}")
+        print(f"For Shree, the button value is {GPIO.input(self.pin)}")
 
     async def toggle_speakers(self):
         """Toggles the state of the speakers.

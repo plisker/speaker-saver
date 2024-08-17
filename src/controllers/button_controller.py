@@ -16,6 +16,7 @@ class ButtonController(metaclass=SingletonMeta):
         self.speakers_controller = speakers_controller
         self.mixer_controller = mixer_controller
         self.pin = pin
+        self.loop = asyncio.get_event_loop()
         self.setup_gpio()
 
     def setup_gpio(self):
@@ -28,7 +29,7 @@ class ButtonController(metaclass=SingletonMeta):
     def button_callback(self, channel):
         """Callback function that runs when the button is pressed"""
         logging.info("Button pressed.")
-        asyncio.run(self.toggle_speakers())
+        self.loop.create_task(self.toggle_speakers())
 
     def read_button_state(self):
         logging.info(f"The button value is {GPIO.input(self.pin)}")
@@ -38,11 +39,14 @@ class ButtonController(metaclass=SingletonMeta):
         """Toggles the state of the speakers.
 
         Speakers must turn off before mixer, but mixer must turn on before speakers."""
-        is_on = await self.speakers_controller.is_on()
+        try:
+            is_on = await self.speakers_controller.is_on()
 
-        if is_on:
-            await self.speakers_controller.turn_off()
-            logging.info("Speakers turned off manually.")
-        else:
-            await self.mixer_controller.turn_on()
-            logging.info("Speakers turned on manually.")
+            if is_on:
+                await self.speakers_controller.turn_off()
+                logging.info("Speakers turned off manually.")
+            else:
+                await self.mixer_controller.turn_on()
+                logging.info("Speakers turned on manually.")
+        except Exception as e:
+            logging.error("Unable to check state of speakers, so ignoring button press")

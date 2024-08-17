@@ -48,3 +48,4 @@ class SmartPlugController(metaclass=SingletonMeta):
             logging.error(f"An error occurred while checking state: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")
             logging.error(f"Attempted to connect to IP: {self.ip_address}")
+            raise e

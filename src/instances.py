@@ -1,15 +1,34 @@
 import os
+from dotenv import load_dotenv
 from src.controllers.smart_plug_controller import SmartPlugController
 from src.controllers.spotify_controller import SpotifyController
 from src.controllers.tv_controller import TVController
+from src.gpio_setup import instantiate_button_controller
 
-# Create and configure the SpotifyController instance
-spotify_controller = SpotifyController(
-    client_id=os.getenv("CLIENT_ID"),
-    client_secret=os.getenv("CLIENT_SECRET"),
-    redirect_uri="http://localhost:8888/callback",
-)
+load_dotenv()
 
-tv_controller = TVController(os.getenv("TV_IP"))
 
-speakers_controller = SmartPlugController(os.getenv("SPEAKERS_IP"))
+def get_spotify_controller():
+    return SpotifyController(
+        client_id=os.getenv("CLIENT_ID"),
+        client_secret=os.getenv("CLIENT_SECRET"),
+        redirect_uri="http://localhost:8888/callback",
+    )
+
+
+def get_tv_controller():
+    return TVController(os.getenv("TV_IP"))
+
+
+def get_speakers_controller():
+    return SmartPlugController(os.getenv("SPEAKERS_IP"), "Speakers")
+
+
+def get_mixer_controller():
+    return SmartPlugController(os.getenv("MIXER_IP"), "Mixer")
+
+
+def get_button_controller():
+    return instantiate_button_controller(  # type: ignore
+        get_speakers_controller(), get_mixer_controller()
+    )

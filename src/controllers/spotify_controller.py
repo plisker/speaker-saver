@@ -4,8 +4,10 @@ import logging
 from flask import Response, redirect
 import requests
 
+from src.controllers.singleton_base import SingletonMeta
 
-class SpotifyController:
+
+class SpotifyController(metaclass=SingletonMeta):
     def __init__(
         self, client_id, client_secret, redirect_uri, token_file="spotify_token.txt"
     ):

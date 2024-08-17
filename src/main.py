@@ -1,15 +1,34 @@
 import asyncio
+import atexit
 import logging
 from dotenv import load_dotenv
-from src.instances import spotify_controller, speakers_controller, tv_controller
+from src.instances import (
+    get_button_controller,
+    get_speakers_controller,
+    get_spotify_controller,
+    get_tv_controller,
+)
 from src.utils.counter import PlaybackCounter
 from src.utils.logging import set_up_logging, update_health_log
 
 # Load environment variables from .env file
 load_dotenv()
-
-
 set_up_logging()
+
+
+try:
+    import RPi.GPIO as GPIO  # type: ignore
+
+    button_controller = get_button_controller()
+
+    GPIO_INSTALLED = True
+except ImportError:
+    GPIO_INSTALLED = False
+
+
+spotify_controller = get_spotify_controller()
+tv_controller = get_tv_controller()
+speakers_controller = get_speakers_controller()
 
 playback_counter = PlaybackCounter()
 
@@ -17,7 +36,7 @@ playback_counter = PlaybackCounter()
 async def monitor_and_control_speakers():
     """The main loop of the script, which checks to see when the speakers were last
     in use, and attempts to shut them off after idling"""
-
+    logging.info("Beginning monitoring of speakers.")
     # Ensure we have an access token
     if not spotify_controller.access_token:
         logging.error(
@@ -66,10 +85,18 @@ async def monitor_and_control_speakers():
             logging.error(f"An error occurred: {e}")
 
 
+def cleanup_gpio():
+    logging.info("Exiting gracefully.")
+    if GPIO_INSTALLED:
+        GPIO.cleanup()
+
+
 def main():
     logging.info("Starting the monitoring script.")
     asyncio.run(monitor_and_control_speakers())
 
+
+atexit.register(cleanup_gpio)
 
 if __name__ == "__main__":
     main()

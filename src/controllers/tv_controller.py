@@ -1,7 +1,9 @@
 import requests
 
+from src.controllers.singleton_base import SingletonMeta
 
-class TVController:
+
+class TVController(metaclass=SingletonMeta):
     def __init__(self, ip_address):
         self.ip_address = ip_address
         self.url = f"http://{self.ip_address}/sony/system"
@@ -9,7 +11,12 @@ class TVController:
 
     async def check_power_status(self) -> bool:
         """Determines whether the Sony TV is turned on"""
-        payload = {"method": "getPowerStatus", "params": [{}], "id": 1, "version": "1.0"}
+        payload = {
+            "method": "getPowerStatus",
+            "params": [{}],
+            "id": 1,
+            "version": "1.0",
+        }
         try:
             response = requests.post(self.url, json=payload, headers=self.headers)
             if response.status_code == 200:

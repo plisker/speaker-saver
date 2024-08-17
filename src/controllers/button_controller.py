@@ -16,7 +16,6 @@ class ButtonController(metaclass=SingletonMeta):
         self.speakers_controller = speakers_controller
         self.mixer_controller = mixer_controller
         self.pin = pin
-        self.loop = asyncio.get_event_loop()
         self.setup_gpio()
 
     def setup_gpio(self):
@@ -29,7 +28,13 @@ class ButtonController(metaclass=SingletonMeta):
     def button_callback(self, channel):
         """Callback function that runs when the button is pressed"""
         logging.info("Button pressed.")
-        self.loop.create_task(self.toggle_speakers())
+
+        # Create a new event loop for this thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        # Run the coroutine in the event loop
+        loop.run_until_complete(self.toggle_speakers())
 
     def read_button_state(self):
         logging.info(f"The button value is {GPIO.input(self.pin)}")

@@ -6,7 +6,7 @@ from src.controllers.smart_plug_controller import SmartPlugController
 GPIO_INSTALLED = False
 
 try:
-    import RPi.GPIO as GPIO
+    import RPi.GPIO as GPIO # type: ignore
     from src.controllers.button_controller import ButtonController
     GPIO_INSTALLED = True
 except ImportError:

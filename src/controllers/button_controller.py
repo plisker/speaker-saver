@@ -15,6 +15,7 @@ class ButtonController:
     ):
         self.speakers_controller = speakers_controller
         self.mixer_controller = mixer_controller
+        self.pin = pin
         self.setup_gpio()
 
     def setup_gpio(self):

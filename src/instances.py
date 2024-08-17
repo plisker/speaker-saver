@@ -1,9 +1,12 @@
 import os
 from typing import Optional
+from dotenv import load_dotenv
 from src.controllers.smart_plug_controller import SmartPlugController
 from src.controllers.spotify_controller import SpotifyController
 from src.controllers.tv_controller import TVController
 from src.gpio_setup import instantiate_button_controller
+
+load_dotenv()
 
 spotify_controller = SpotifyController(
     client_id=os.getenv("CLIENT_ID"),

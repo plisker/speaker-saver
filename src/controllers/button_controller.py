@@ -44,5 +44,5 @@ class ButtonController:
         else:
             await self.mixer_controller.turn_on()
             time.sleep(3)
-            await self.speakers_controller.turn_off()
+            await self.speakers_controller.turn_on()
             logging.info("Speakers turned on manually.")

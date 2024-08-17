@@ -7,7 +7,7 @@ from src.utils.counter import PlaybackCounter
 from src.utils.logging import set_up_logging, update_health_log
 
 try:
-    import RPi.GPIO as GPIO # type: ignore
+    import RPi.GPIO as GPIO  # type: ignore
     from src.instances import button_controller
 
     GPIO_INSTALLED = True

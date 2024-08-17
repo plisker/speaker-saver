@@ -86,26 +86,57 @@ Run the setup script:
 python3 setup_env.py
 ```
 #### Step 3: Configure the Service to Run on Startup
-Create a `systemd` service to start your project automatically on boot:
+##### Step 1: Create a `start_services.sh` script to run your project:
+1. Create script file:
+```bash
+sudo nano ~/start_services.sh
+```
+2. Add the following script:
+```bash
+#!/bin/bash
+
+echo "Starting speaker saver service"
+sleep 10
+
+echo "Starting virtual environment"
+cd /home/plisker/speaker-saver
+source venv/bin/activate
+echo "Virtual environment is ready"
+
+env > /home/plisker/speaker-saver/script_env.txt
+
+# Run auth and main scripts
+python -m src.auth &
+AUTH_PID=$!
+echo "Auth script started with PID: $AUTH_PID"
+
+python -m src.main &
+MAIN_PID=$!
+echo "Main script started with PID: $MAIN_PID"
+
+wait $AUTH_PID
+wait $MAIN_PID
+```
+
+##### Step 2: Create a `systemd` service to start your project automatically on boot:
 
 1. Create a service file:
 ```bash
 sudo nano /etc/systemd/system/speaker-saver.service
 ```
-2. Add the following configuration:
+2. Add the following configuration, making sure to change your paths as necessary:
 ```ini
 [Unit]
 Description=Speaker Saver Service
-After=network-online.target
+After=network.target
 
 [Service]
-ExecStart=/home/pi/speaker-saver/start_services.sh
-WorkingDirectory=/home/pi/speaker-saver
+Type=simple
+ExecStart=/home/plisker/start_services.sh
+WorkingDirectory=/home/plisker/speaker-saver
 StandardOutput=inherit
 StandardError=inherit
-Restart=always
-User=pi
-Environment="PATH=/home/pi/speaker-saver/venv/bin:/usr/bin"
+User=plisker
 
 [Install]
 WantedBy=multi-user.target
@@ -122,7 +153,6 @@ If, on the Raspberry Pi, you get an error about the `add_event_handler`, you may
 
 ```bash
 sudo apt remove python3-rpi.gpio
-pip install rpi-lgpio
 ```
 
 ## Health Monitoring

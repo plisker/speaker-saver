@@ -1,1 +1,3 @@
+wheel
 RPi.GPIO
+rpi-lgpio

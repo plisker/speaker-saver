@@ -1,7 +1,7 @@
 import asyncio
 import atexit
 import logging
-from typing import List
+from typing import List, Optional, Tuple
 from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
 from src.instances import (
@@ -34,12 +34,16 @@ speakers_controller = get_speakers_controller()
 
 playback_counter = PlaybackCounter()
 
-async def check_all_controllers(controllers: List[Controller]):
+
+async def check_all_controllers(
+    controllers: List[Controller],
+) -> Tuple[bool, Optional[str]]:
     """Check all controllers to see if any are active."""
     for controller in controllers:
         if await controller.is_active():
-            return True
+            return True, controller.NAME
     return False
+
 
 async def monitor_and_control_speakers():
     """The main loop of the script, which checks to see when the speakers were last
@@ -56,12 +60,12 @@ async def monitor_and_control_speakers():
 
     while True:
         try:
-            update_health_log("Service is running")
+            update_health_log("Service is running... starting checks.")
 
             # Refresh the access token if necessary
             await spotify_controller.refresh_access_token()
 
-            is_any_active = await check_all_controllers(controllers)
+            is_any_active, active_name = await check_all_controllers(controllers)
 
             if not is_any_active:
                 playback_counter.increment()
@@ -74,7 +78,9 @@ async def monitor_and_control_speakers():
             else:
                 playback_counter.reset()
                 logging.info("A controller was active counter reset.")
-                update_health_log(f"Service is running. Speakers are in use.")
+                update_health_log(
+                    f"Service is running. Speakers are in use through {active_name}."
+                )
 
             if playback_counter.should_turn_off_speakers():
                 logging.info(

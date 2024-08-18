@@ -10,6 +10,10 @@ class TVController(Controller, metaclass=SingletonMeta):
         self.url = f"http://{self.ip_address}/sony/system"
         self.headers = {"Content-Type": "application/json"}
 
+    @property
+    def NAME(self) -> str:
+        return "TV"
+
     async def is_active(self) -> bool:
         """Determines whether the Sony TV is turned on"""
         payload = {

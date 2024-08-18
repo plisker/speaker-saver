@@ -24,6 +24,10 @@ class SpotifyController(Controller, metaclass=SingletonMeta):
         # Load the saved tokens if available
         self.load_tokens()
 
+    @property
+    def NAME(self) -> str:
+        return "Spotify"
+
     def load_tokens(self) -> None:
         try:
             with open(self.token_file, "r") as file:

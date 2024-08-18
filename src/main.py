@@ -1,7 +1,9 @@
 import asyncio
 import atexit
 import logging
+from typing import List
 from dotenv import load_dotenv
+from src.controllers.controller_interface import Controller
 from src.instances import (
     get_button_controller,
     get_speakers_controller,
@@ -32,6 +34,12 @@ speakers_controller = get_speakers_controller()
 
 playback_counter = PlaybackCounter()
 
+async def check_all_controllers(controllers: List[Controller]):
+    """Check all controllers to see if any are active."""
+    for controller in controllers:
+        if await controller.is_active():
+            return True
+    return False
 
 async def monitor_and_control_speakers():
     """The main loop of the script, which checks to see when the speakers were last
@@ -44,6 +52,8 @@ async def monitor_and_control_speakers():
         )
         return
 
+    controllers = [spotify_controller, tv_controller]
+
     while True:
         try:
             update_health_log("Service is running")
@@ -51,11 +61,9 @@ async def monitor_and_control_speakers():
             # Refresh the access token if necessary
             await spotify_controller.refresh_access_token()
 
-            # Check if Spotify is playing and whether TV is on
-            is_playing = await spotify_controller.check_playback()
-            is_tv_on = await tv_controller.check_power_status()
+            is_any_active = await check_all_controllers(controllers)
 
-            if not is_playing and not is_tv_on:
+            if not is_any_active:
                 playback_counter.increment()
                 logging.info(
                     f"No playback detected. {playback_counter.get_minutes_left()} minutes until speaker shutoff."
@@ -65,11 +73,7 @@ async def monitor_and_control_speakers():
                 )
             else:
                 playback_counter.reset()
-                if is_playing:
-                    logging.info("Playback detected...")
-                if is_tv_on:
-                    logging.info("TV is on...")
-                logging.info("...counter reset.")
+                logging.info("A controller was active counter reset.")
                 update_health_log(f"Service is running. Speakers are in use.")
 
             if playback_counter.should_turn_off_speakers():

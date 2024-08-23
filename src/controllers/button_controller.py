@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO  # type: ignore
 
 from src.controllers.singleton_base import SingletonMeta
 from src.controllers.smart_plug_controller import SmartPlugController
+from src.instances import get_playback_counter
 
 
 class ButtonController(metaclass=SingletonMeta):
@@ -28,6 +29,10 @@ class ButtonController(metaclass=SingletonMeta):
     def button_callback(self, channel):
         """Callback function that runs when the button is pressed"""
         logging.info("Button pressed.")
+
+        # Reset the playback counter when the button is pressed
+        playback_counter = get_playback_counter()
+        playback_counter.reset()
 
         # Create a new event loop for this thread
         loop = asyncio.new_event_loop()

@@ -4,8 +4,11 @@ from src.controllers.smart_plug_controller import SmartPlugController
 from src.controllers.spotify_controller import SpotifyController
 from src.controllers.tv_controller import TVController
 from src.gpio_setup import instantiate_button_controller
+from src.utils.counter import PlaybackCounter
 
 load_dotenv()
+
+_playback_counter_instance = None
 
 
 def get_spotify_controller():
@@ -32,3 +35,10 @@ def get_button_controller():
     return instantiate_button_controller(  # type: ignore
         get_speakers_controller(), get_mixer_controller()
     )
+
+
+def get_playback_counter():
+    global _playback_counter_instance
+    if _playback_counter_instance is None:
+        _playback_counter_instance = PlaybackCounter()
+    return _playback_counter_instance

@@ -4,10 +4,11 @@ import logging
 from flask import Response, redirect
 import requests
 
+from src.controllers.controller_interface import Controller
 from src.controllers.singleton_base import SingletonMeta
 
 
-class SpotifyController(metaclass=SingletonMeta):
+class SpotifyController(Controller, metaclass=SingletonMeta):
     def __init__(
         self, client_id, client_secret, redirect_uri, token_file="spotify_token.txt"
     ):
@@ -22,6 +23,10 @@ class SpotifyController(metaclass=SingletonMeta):
 
         # Load the saved tokens if available
         self.load_tokens()
+
+    @property
+    def NAME(self) -> str:
+        return "Spotify"
 
     def load_tokens(self) -> None:
         try:
@@ -103,7 +108,7 @@ class SpotifyController(metaclass=SingletonMeta):
         # Save the new access token
         self.save_tokens()
 
-    async def check_playback(self) -> bool:
+    async def is_active(self) -> bool:
         url = "https://api.spotify.com/v1/me/player"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.get(url, headers=headers)

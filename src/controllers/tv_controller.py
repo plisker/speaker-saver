@@ -1,15 +1,20 @@
 import requests
 
+from src.controllers.controller_interface import Controller
 from src.controllers.singleton_base import SingletonMeta
 
 
-class TVController(metaclass=SingletonMeta):
+class TVController(Controller, metaclass=SingletonMeta):
     def __init__(self, ip_address):
         self.ip_address = ip_address
         self.url = f"http://{self.ip_address}/sony/system"
         self.headers = {"Content-Type": "application/json"}
 
-    async def check_power_status(self) -> bool:
+    @property
+    def NAME(self) -> str:
+        return "TV"
+
+    async def is_active(self) -> bool:
         """Determines whether the Sony TV is turned on"""
         payload = {
             "method": "getPowerStatus",

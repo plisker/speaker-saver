@@ -1,10 +1,9 @@
 import requests
 
 from src.controllers.controller_interface import Controller
-from src.controllers.singleton_base import SingletonMeta
 
 
-class TVController(Controller, metaclass=SingletonMeta):
+class TVController(Controller):
     def __init__(self, ip_address):
         self.ip_address = ip_address
         self.url = f"http://{self.ip_address}/sony/system"

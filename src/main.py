@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
 from src.instances import (
     get_button_controller,
+    get_playback_counter,
     get_speakers_controller,
     get_spotify_controller,
     get_tv_controller,
 )
-from src.utils.counter import PlaybackCounter
 from src.utils.logging import set_up_logging, update_health_log
 
 # Load environment variables from .env file
@@ -32,7 +32,7 @@ spotify_controller = get_spotify_controller()
 tv_controller = get_tv_controller()
 speakers_controller = get_speakers_controller()
 
-playback_counter = PlaybackCounter()
+playback_counter = get_playback_counter()
 
 
 async def check_all_controllers(

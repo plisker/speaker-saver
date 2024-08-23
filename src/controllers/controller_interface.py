@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
-class Controller(ABC):
+from src.controllers.singleton_base import SingletonMeta
+
+
+class Controller(ABC, metaclass=SingletonMeta):
     @property
     @abstractmethod
     def NAME(self) -> str:

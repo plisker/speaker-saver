@@ -40,7 +40,9 @@ async def check_all_controllers(
 ) -> Tuple[bool, Optional[str]]:
     """Check all controllers to see if any are active."""
     for controller in controllers:
-        if await controller.is_active():
+        is_active = controller.is_active()
+        logging.info(f'Controller {controller.NAME} active check came back {is_active}')
+        if await is_active:
             return True, controller.NAME
     return False
 

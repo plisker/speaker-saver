@@ -1,7 +1,7 @@
 import asyncio
 import atexit
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
 from src.instances import (
@@ -37,14 +37,12 @@ playback_counter = get_playback_counter()
 
 async def check_all_controllers(
     controllers: List[Controller],
-) -> Tuple[bool, Optional[str]]:
+) -> Tuple[bool, str]:
     """Check all controllers to see if any are active."""
     for controller in controllers:
-        is_active = await controller.is_active()
-        logging.info(f'Controller {controller.NAME} active check came back {is_active}')
-        if is_active:
+        if await controller.is_active():
             return True, controller.NAME
-    return False
+    return False, controller.NAME
 
 
 async def monitor_and_control_speakers():

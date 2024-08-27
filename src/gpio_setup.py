@@ -10,8 +10,8 @@ try:
     from src.controllers.button_controller import ButtonController
 
     GPIO_INSTALLED = True
-except ImportError:
-    pass
+except ImportError as e:
+    logging.warn("Unable to import GPIO library. Error: ", e)
 
 
 def instantiate_button_controller(

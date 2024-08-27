@@ -26,9 +26,9 @@ class SmartPlugController:
             logging.debug(f"Plug {self.name} status: {self.plug.is_on}")
             if self.plug.is_on:
                 await self.plug.turn_off()
-                logging.debug(f"Plug {self.name} turned off.")
+                logging.info(f"Plug {self.name} turned off.")
             else:
-                logging.info(f"Plug {self.name} are already off.")
+                logging.debug(f"Plug {self.name} are already off.")
         except Exception as e:
             logging.error(f"An error occurred while turning off {self.name}: {e}")
             logging.error("Ensure the Kasa plug is online and accessible.")

@@ -77,7 +77,7 @@ async def monitor_and_control_speakers():
                 )
             else:
                 playback_counter.reset()
-                logging.info("A controller was active counter reset.")
+                logging.info("A controller was active. Counter reset.")
                 update_health_log(
                     f"Service is running. Speakers are in use through {active_name}."
                 )

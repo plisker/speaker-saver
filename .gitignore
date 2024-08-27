@@ -194,5 +194,8 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+# Raspberry Pi
+script_env.txt
+
 # Spotify Token
 spotify_token.txt

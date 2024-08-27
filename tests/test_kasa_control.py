@@ -1,5 +1,5 @@
 import asyncio
-from src.instances import get_speakers_controller
+from src.controllers.utils.instances import get_speakers_controller
 
 async def test_turn_off_speakers():
     print("Testing turning off speakers...")

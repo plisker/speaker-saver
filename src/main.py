@@ -4,7 +4,7 @@ import logging
 from typing import List, Tuple
 from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
-from src.instances import (
+from src.controllers.utils.instances import (
     get_button_controller,
     get_playback_counter,
     get_speakers_controller,
@@ -77,14 +77,16 @@ async def monitor_and_control_speakers():
                 )
             else:
                 playback_counter.reset()
-                logging.info("A controller was active. Counter reset.")
+                logging.info(
+                    f"Speakers are in use through {active_name}. Counter reset."
+                )
                 update_health_log(
                     f"Service is running. Speakers are in use through {active_name}."
                 )
 
             if playback_counter.should_turn_off_speakers():
                 logging.info(
-                    "No playback for threshold duration. Turning off speakers."
+                    "No playback for threshold duration. Turning off speakers if necessary."
                 )
                 await speakers_controller.turn_off()
                 playback_counter.reset()  # Reset the counter after turning off speakers

@@ -26,7 +26,7 @@ class SmartPlugController:
             logging.debug(f"Plug {self.name} status: {self.plug.is_on}")
             if self.plug.is_on:
                 await self.plug.turn_off()
-                logging.info(f"Plug {self.name} turned off.")
+                logging.debug(f"Plug {self.name} turned off.")
             else:
                 logging.info(f"Plug {self.name} are already off.")
         except Exception as e:
@@ -39,7 +39,7 @@ class SmartPlugController:
             await self.plug.update()
             logging.debug(f"Plug status: {self.plug.is_on}")
             if self.plug.is_on:
-                logging.info(f"Plug {self.name} is already on.")
+                logging.debug(f"Plug {self.name} is already on.")
             else:
                 await self.plug.turn_on()
                 logging.info(f"Plug {self.name} turned on.")
@@ -49,10 +49,10 @@ class SmartPlugController:
             logging.error(f"Attempted to connect to IP: {self.ip_address}")
 
     async def is_on(self) -> bool:
-        logging.info(f"Checking state of the plug {self.name}")
+        logging.debug(f"Checking state of the plug {self.name}")
         try:
             await self.plug.update()
-            logging.info(f"Speaker state came back as {self.plug.is_on}")
+            logging.debug(f"Speaker state came back as {self.plug.is_on}")
             return self.plug.is_on
         except Exception as e:
             logging.error(f"An error occurred while checking state: {e}")

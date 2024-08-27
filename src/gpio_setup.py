@@ -5,7 +5,7 @@ from src.controllers.smart_plug_controller import SmartPlugController
 
 def instantiate_button_controller(
     speakers_controller: SmartPlugController, mixer_controller: SmartPlugController
-) -> Optional["ButtonController"]: # type: ignore
+) -> Optional["ButtonController"]:  # type: ignore
     GPIO_INSTALLED = False
     try:
         import RPi.GPIO as GPIO  # type: ignore

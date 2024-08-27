@@ -103,12 +103,17 @@ def cleanup_gpio():
         GPIO.cleanup()
 
 
+def shutoff_health_log():
+    update_health_log("Service is not running.")
+
+
 def main():
     logging.info("Starting the monitoring script.")
     asyncio.run(monitor_and_control_speakers())
 
 
 atexit.register(cleanup_gpio)
+atexit.register(shutoff_health_log)
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,10 @@
 import asyncio
 import atexit
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
-from src.instances import (
+from src.controllers.utils.instances import (
     get_button_controller,
     get_playback_counter,
     get_speakers_controller,
@@ -37,12 +37,12 @@ playback_counter = get_playback_counter()
 
 async def check_all_controllers(
     controllers: List[Controller],
-) -> Tuple[bool, Optional[str]]:
+) -> Tuple[bool, str]:
     """Check all controllers to see if any are active."""
     for controller in controllers:
         if await controller.is_active():
             return True, controller.NAME
-    return False
+    return False, controller.NAME
 
 
 async def monitor_and_control_speakers():
@@ -77,14 +77,16 @@ async def monitor_and_control_speakers():
                 )
             else:
                 playback_counter.reset()
-                logging.info("A controller was active counter reset.")
+                logging.info(
+                    f"Speakers are in use through {active_name}. Counter reset."
+                )
                 update_health_log(
                     f"Service is running. Speakers are in use through {active_name}."
                 )
 
             if playback_counter.should_turn_off_speakers():
                 logging.info(
-                    "No playback for threshold duration. Turning off speakers."
+                    "No playback for threshold duration. Turning off speakers if necessary."
                 )
                 await speakers_controller.turn_off()
                 playback_counter.reset()  # Reset the counter after turning off speakers
@@ -101,12 +103,17 @@ def cleanup_gpio():
         GPIO.cleanup()
 
 
+def shutoff_health_log():
+    update_health_log("Service is not running.")
+
+
 def main():
     logging.info("Starting the monitoring script.")
     asyncio.run(monitor_and_control_speakers())
 
 
 atexit.register(cleanup_gpio)
+atexit.register(shutoff_health_log)
 
 if __name__ == "__main__":
     main()

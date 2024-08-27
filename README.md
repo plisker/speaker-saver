@@ -44,10 +44,10 @@ This script will generate a `.env` file with your configurations.
 
 ### 4. Authorize Spotify Access
 
-The first time you run the `auth.py` script, you'll need to authorize your Spotify app. Start the Flask server:
+The first time you run the `api.py` script, you'll need to authorize your Spotify app. Start the Flask server:
 
 ```bash
-python -m src.auth
+python -m src.api
 ```
 
 Navigate to the `/authorize` endpoint in your browser to complete the Spotify authorization process. For example, if you're running the Flask server locally, visit `http://localhost:8888/authorize`.
@@ -65,7 +65,7 @@ python -m src.main
 To start the Flask server for handling Spotify authorization and exposing health endpoints:
 
 ```bash
-python -m src.auth
+python -m src.api
 ```
 
 ### 2. Deploying to Raspberry Pi
@@ -126,16 +126,16 @@ echo "Virtual environment is ready"
 
 env > /home/plisker/speaker-saver/script_env.txt
 
-# Run auth and main scripts
-python -m src.auth &
-AUTH_PID=$!
-echo "Auth script started with PID: $AUTH_PID"
+# Run api and main scripts
+python -m src.api &
+API_PID=$!
+echo "API server script started with PID: $API_PID"
 
 python -m src.main &
 MAIN_PID=$!
 echo "Main script started with PID: $MAIN_PID"
 
-wait $AUTH_PID
+wait $API_PID
 wait $MAIN_PID
 ```
 

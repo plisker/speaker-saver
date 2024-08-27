@@ -1,6 +1,6 @@
 import asyncio
 
-from src.instances import get_tv_controller
+from src.controllers.utils.instances import get_tv_controller
 
 
 async def test_tv_status():

@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO  # type: ignore
 
 from src.controllers.singleton_base import SingletonMeta
 from src.controllers.smart_plug_controller import SmartPlugController
-from src.instances import get_playback_counter
+from src.controllers.utils.instances import get_playback_counter
 
 
 class ButtonController(metaclass=SingletonMeta):

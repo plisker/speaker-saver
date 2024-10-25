@@ -37,5 +37,7 @@ def set_up_logging():
 
 def update_health_log(status_message):
     """Updates the health.log file that is visible through an endpoint"""
+    pretty_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z%z")
+
     with open(HEALTH_LOG_FILE, "w") as file:
-        file.write(f"{status_message} - {datetime.now().isoformat()}\n")
+        file.write(f"{status_message} - {pretty_time}\n")

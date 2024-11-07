@@ -56,7 +56,8 @@ async def monitor_and_control_speakers():
         )
         return
 
-    controllers = [spotify_controller, tv_controller]
+    controllers = [spotify_controller]
+    controllers_turn_on_speakers = [tv_controller]
 
     while True:
         try:
@@ -65,7 +66,21 @@ async def monitor_and_control_speakers():
             # Refresh the access token if necessary
             await spotify_controller.refresh_access_token()
 
-            is_any_active, active_name = await check_all_controllers(controllers)
+            # Check if any controller is on that should trigger speaker turn on
+            is_any_active, active_name = await check_all_controllers(
+                controllers_turn_on_speakers
+            )
+
+            # If yes, turn on speakers
+            if is_any_active:
+                logging.info(
+                    f"{active_name} is in use. Speakers will be turned on if necessary."
+                )
+                await speakers_controller.turn_on()
+
+            # Otherwise, check rest of controllers
+            if not is_any_active:
+                is_any_active, active_name = await check_all_controllers(controllers)
 
             if not is_any_active:
                 playback_counter.increment()

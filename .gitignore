@@ -199,3 +199,6 @@ script_env.txt
 
 # Spotify Token
 spotify_token.txt
+
+# Log files
+app.log.*

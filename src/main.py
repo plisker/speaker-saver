@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from src.controllers.controller_interface import Controller
 from src.controllers.utils.instances import (
     get_button_controller,
+    get_mixer_controller,
     get_playback_counter,
     get_speakers_controller,
     get_spotify_controller,
@@ -31,6 +32,7 @@ except ImportError:
 spotify_controller = get_spotify_controller()
 tv_controller = get_tv_controller()
 speakers_controller = get_speakers_controller()
+mixer_controller = get_mixer_controller()
 
 playback_counter = get_playback_counter()
 
@@ -76,7 +78,7 @@ async def monitor_and_control_speakers():
                 logging.info(
                     f"{active_name} is in use. Speakers will be turned on if necessary."
                 )
-                await speakers_controller.turn_on()
+                await mixer_controller.turn_on()
 
             # Otherwise, check rest of controllers
             if not is_any_active:

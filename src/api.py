@@ -72,13 +72,12 @@ async def control_speakers():
                 message="Speakers turned off",
                 status_message=status_message,
             )
-        else:
-            status_message = await system_state.get_status_message()
-            return await render_template(
-                "control_speakers.html",
-                message="Invalid action.",
-                status_message=status_message,
-            )
+        status_message = await system_state.get_status_message()
+        return await render_template(
+            "control_speakers.html",
+            message="Invalid action.",
+            status_message=status_message,
+        )
 
     status_message = await system_state.get_status_message()
     return await render_template("control_speakers.html", status_message=status_message)

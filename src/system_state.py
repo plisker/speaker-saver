@@ -1,7 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
-from src.controllers.utils.instances import get_speakers_controller
+from src.controllers.utils.instances import (
+    get_playback_counter,
+    get_speakers_controller,
+)
 
 
 class SystemState:
@@ -9,19 +12,19 @@ class SystemState:
 
     def __init__(self):
         self.speakers_on = False
-        self.current_user = None  # What system is using the speakers
+        self.current_service = None  # What system is using the speakers
         self.turn_off_time: Optional[datetime] = None
         self.speakers_controller = get_speakers_controller()
 
     def update_state(
         self,
-        current_user: Optional[str],
-        minutes_left: Optional[int] = None,
+        current_service: Optional[str],
+        turn_off_time: Optional[datetime] = None,
     ):
         """Update the system state with the latest information."""
-        self.current_user = current_user
-        if minutes_left is not None:
-            self.turn_off_time = datetime.now() + timedelta(minutes=minutes_left)
+        self.current_service = current_service
+        if turn_off_time is not None:
+            self.turn_off_time = turn_off_time
         else:
             self.turn_off_time = None
 
@@ -29,12 +32,14 @@ class SystemState:
         """Generate a human-readable status message."""
         self.speakers_on = await self.speakers_controller.is_on()
         if self.speakers_on:
-            if self.current_user:
-                return f"Speakers are ON and being used by {self.current_user}."
+            if self.current_service:
+                return f"Speakers are ON and being used by {self.current_service}."
             if self.turn_off_time:
                 return (
                     f"Speakers are ON and will turn off at "
                     f"{self.turn_off_time.strftime('%H:%M:%S')}."
                 )
             return "Speakers are ON."
+        playback_counter = get_playback_counter()
+        playback_counter.reset()
         return "Speakers are OFF."

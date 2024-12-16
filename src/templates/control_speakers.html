@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Speaker Control</title>
+    <script src="https://kit.fontawesome.com/414f558033.js" crossorigin="anonymous"></script> <!-- Add FontAwesome kit -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,6 +54,9 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Add some space between the icon and text */
         }
 
         .btn-on {
@@ -64,17 +68,54 @@
             background-color: #dc3545;
             color: white;
         }
+
+        .btn-authorize {
+            background-color: #1db954;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .fa-spotify {
+            font-size: 1.5rem; /* Adjust icon size */
+        }
+
+        a {
+            text-decoration: none
+        }
     </style>
 </head>
 <body>
     <h1>Speaker Control</h1>
     {% if message %}
-        <div class="message">{{ message }}</div>
+        <div class="message" id="message">{{ message }}</div>
     {% endif %}
-    <div class="status">{{ status_message }}</div>
-    <form method="POST" class="button-container">
-        <button type="submit" name="action" value="on" class="btn-on">Turn On</button>
-        <button type="submit" name="action" value="off" class="btn-off">Turn Off</button>
-    </form>
+    {% if show_authorize_button %}
+    <a href="{{ url_for('authorize') }}">
+        <button class="btn-authorize">
+            <i class="fab fa-spotify fa-2x"></i> <!-- FontAwesome Spotify icon -->
+            Authorize with Spotify
+        </button>
+    </a>
+    {% else %}
+        <div class="status">{{ status_message }}</div>
+        <form method="POST" class="button-container">
+            <button type="submit" name="action" value="on" class="btn-on">Turn On</button>
+            <button type="submit" name="action" value="off" class="btn-off">Turn Off</button>
+        </form>
+    {% endif %}
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded', (event) => {
+            // Check if the message is displayed
+            var messageElement = document.getElementById("message");
+            if (messageElement) {
+                setTimeout(function () {
+                    messageElement.style.display = 'none';  // Hide the message
+                }, 15000);  // 15 seconds
+            }
+        });
+    </script>
 </body>
 </html>

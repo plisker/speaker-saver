@@ -1,8 +1,9 @@
 import base64
 import logging
+import time
 
-from flask import Response, redirect
 import requests
+from quart import Response, redirect
 
 from src.controllers.controller_interface import Controller
 
@@ -19,6 +20,8 @@ class SpotifyController(Controller):
         self.auth_url = "https://accounts.spotify.com/authorize"
         self.access_token = None
         self.refresh_token = None
+        self.expires_in = None
+        self.token_issued_at = None  # New attribute to track token issue time
 
         # Load the saved tokens if available
         self.load_tokens()
@@ -36,8 +39,13 @@ class SpotifyController(Controller):
                         self.access_token = line.strip().split("=")[1]
                     elif line.startswith("refresh_token="):
                         self.refresh_token = line.strip().split("=")[1]
+                    elif line.startswith("expires_in="):
+                        self.expires_in = line.strip().split("=")[1]
+                    elif line.startswith("token_issued_at="):
+                        self.token_issued_at = float(line.strip().split("=")[1])
+
         except FileNotFoundError:
-            logging.error("Token file not found.")
+            logging.warning("Token file not found, Spotify authentication required.")
 
     def get_authorization_url(self):
         """Generate the Spotify authorization URL."""
@@ -53,6 +61,8 @@ class SpotifyController(Controller):
         with open(self.token_file, "w") as file:
             file.write(f"access_token={self.access_token}\n")
             file.write(f"refresh_token={self.refresh_token}\n")
+            file.write(f"expires_in={self.expires_in}\n")
+            file.write(f"token_issued_at={self.token_issued_at}\n")
 
     def authorize(self) -> Response:
         auth_url = (
@@ -80,6 +90,8 @@ class SpotifyController(Controller):
         response_data = response.json()
         self.access_token = response_data.get("access_token")
         self.refresh_token = response_data.get("refresh_token")
+        self.expires_in = response_data.get("expires_in")
+        self.token_issued_at = time.time()
 
         # Save tokens to file
         self.save_tokens()
@@ -101,13 +113,33 @@ class SpotifyController(Controller):
             "refresh_token": self.refresh_token,
         }
         response = requests.post(self.token_url, headers=headers, data=data)
-        response_data = response.json()
+        print(response)
+        try:
+            response_data = response.json()
+        except Exception as e:
+            logging.warning(e, exc_info=True)
         self.access_token = response_data.get("access_token")
+        self.refresh_token = response_data.get("refresh_token")
+        self.expires_in = response_data.get("expires_in")
+        self.token_issued_at = time.time()
 
         # Save the new access token
         self.save_tokens()
 
+    def is_token_expired(self) -> bool:
+        """Check if the access token has expired."""
+        if not self.token_issued_at or not self.expires_in:
+            return True
+        return time.time() > int(self.token_issued_at) + int(self.expires_in)
+
+    async def ensure_token_valid(self) -> None:
+        """Refresh the token if it has expired."""
+        if self.is_token_expired():
+            logging.info("Access token expired. Refreshing...")
+            await self.refresh_access_token()
+
     async def is_active(self) -> bool:
+        await self.ensure_token_valid()
         url = "https://api.spotify.com/v1/me/player"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.get(url, headers=headers)

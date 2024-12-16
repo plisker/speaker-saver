@@ -90,7 +90,7 @@
 <body>
     <h1>Speaker Control</h1>
     {% if message %}
-        <div class="message">{{ message }}</div>
+        <div class="message" id="message">{{ message }}</div>
     {% endif %}
     {% if show_authorize_button %}
     <a href="{{ url_for('authorize') }}">
@@ -106,5 +106,16 @@
             <button type="submit" name="action" value="off" class="btn-off">Turn Off</button>
         </form>
     {% endif %}
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded', (event) => {
+            // Check if the message is displayed
+            var messageElement = document.getElementById("message");
+            if (messageElement) {
+                setTimeout(function () {
+                    messageElement.style.display = 'none';  // Hide the message
+                }, 15000);  // 15 seconds
+            }
+        });
+    </script>
 </body>
 </html>

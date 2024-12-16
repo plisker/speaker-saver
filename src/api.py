@@ -28,8 +28,7 @@ async def callback():
         access_token = spotify_controller.get_access_token(code)
         if access_token:
             return "Access Token saved. You can now run your main script."
-        else:
-            return "Failed to get access token."
+        return "Failed to get access token."
     return "Authorization failed."
 
 
@@ -54,6 +53,13 @@ async def get_logs():
 async def control_speakers():
     """Main page of app, giving visibility into current state and
     allowing for control of the speakers."""
+    if not spotify_controller.access_token:
+        return await render_template(
+            "control_speakers.html",
+            message="Please authorize with Spotify to control the speakers.",
+            show_authorize_button=True,
+        )
+
     if request.method == "POST":
         action = (await request.form).get("action")
         if action == "on":

@@ -84,9 +84,6 @@ async def monitor_and_control_speakers(system_state: SystemState):
         try:
             update_health_log("Service is running... starting checks.")
 
-            # Refresh the access token if necessary
-            await spotify_controller.refresh_access_token()
-
             # Check if any controller is on that should trigger speaker turn on
             is_any_active, active_name = await check_all_controllers(
                 controllers_turn_on_speakers

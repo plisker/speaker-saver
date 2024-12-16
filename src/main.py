@@ -70,17 +70,17 @@ async def monitor_and_control_speakers(system_state: SystemState):
     in use, and attempts to shut them off after idling."""
     logging.info("Beginning monitoring of speakers.")
 
-    # Ensure we have an access token
-    if not spotify_controller.access_token:
-        logging.error(
-            "Access token not found. Please run the authorization script first."
-        )
-        return
-
     controllers: list[Controller] = [spotify_controller]
     controllers_turn_on_speakers: list[Controller] = [tv_controller]
 
     while True:
+        if not spotify_controller.access_token:
+            logging.error(
+                "Access token not found. Please run the authorization script first."
+            )
+            await asyncio.sleep(playback_counter.get_check_interval())
+            continue
+
         try:
             update_health_log("Service is running... starting checks.")
 

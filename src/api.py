@@ -1,6 +1,6 @@
 import asyncio
 
-from quart import Quart, redirect, render_template, request
+from quart import Quart, redirect, render_template, request, url_for
 
 from src.controllers.utils.instances import get_spotify_controller
 from src.main import monitor_and_control_speakers, turn_off_speakers, turn_on_speakers
@@ -27,7 +27,7 @@ async def callback():
     if code:
         access_token = spotify_controller.get_access_token(code)
         if access_token:
-            return "Access Token saved. You can now run your main script."
+            return redirect(url_for("control_speakers"))
         return "Failed to get access token."
     return "Authorization failed."
 

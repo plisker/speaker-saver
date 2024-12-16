@@ -1,5 +1,6 @@
 class PlaybackCounter:
-    def __init__(self, threshold_minutes=20, check_frequency_minutes=1):
+
+    def __init__(self, threshold_minutes=20, check_frequency_minutes=0.5):
         self.threshold_minutes = threshold_minutes
         self.check_frequency_minutes = check_frequency_minutes
         self.counter = 0

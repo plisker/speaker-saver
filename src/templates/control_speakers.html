@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaker Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e7f3fe;
+            color: #31708f;
+            border: 1px solid #bce8f1;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-on {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-off {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speaker Control</h1>
+    {% if message %}
+        <div class="message">{{ message }}</div>
+    {% endif %}
+    <div class="status">{{ status_message }}</div>
+    <form method="POST" class="button-container">
+        <button type="submit" name="action" value="on" class="btn-on">Turn On</button>
+        <button type="submit" name="action" value="off" class="btn-off">Turn Off</button>
+    </form>
+</body>
+</html>

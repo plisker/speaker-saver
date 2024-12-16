@@ -77,8 +77,8 @@ async def monitor_and_control_speakers(system_state: SystemState):
         )
         return
 
-    controllers = [spotify_controller]
-    controllers_turn_on_speakers = [tv_controller]
+    controllers: list[Controller] = [spotify_controller]
+    controllers_turn_on_speakers: list[Controller] = [tv_controller]
 
     while True:
         try:
@@ -96,7 +96,7 @@ async def monitor_and_control_speakers(system_state: SystemState):
             if is_any_active:
                 await turn_on_speakers()
                 system_state.update_state(
-                    current_user=active_name,
+                    current_service=active_name,
                 )
 
             # Otherwise, check the rest of the controllers
@@ -104,23 +104,22 @@ async def monitor_and_control_speakers(system_state: SystemState):
                 is_any_active, active_name = await check_all_controllers(controllers)
 
             if not is_any_active:
-                playback_counter.increment()
-                minutes_left = playback_counter.get_minutes_left()
                 system_state.update_state(
-                    current_user=None,
-                    minutes_left=minutes_left,
+                    current_service=None,
+                    turn_off_time=playback_counter.shutoff_time,
                 )
                 logging.info(
                     "No playback detected. %s minutes until speaker shutoff if necessary.",
-                    minutes_left,
+                    round(playback_counter.get_minutes_left(), 1),
                 )
                 update_health_log(
-                    f"Service is running. {minutes_left} minutes until speaker shutoff if necessary"
+                    f"Service is running. {round(playback_counter.get_minutes_left(), 1)} minutes "
+                    f"until speaker shutoff if necessary"
                 )
             else:
                 playback_counter.reset()
                 system_state.update_state(
-                    current_user=active_name,
+                    current_service=active_name,
                 )
                 logging.info(
                     "Speakers are in use through %s. Counter reset.", active_name
@@ -134,12 +133,12 @@ async def monitor_and_control_speakers(system_state: SystemState):
                     "No playback for threshold duration. Turning off speakers."
                 )
                 await turn_off_speakers()
-                system_state.update_state(current_user=None)
+                system_state.update_state(current_service=None)
 
             await asyncio.sleep(playback_counter.get_check_interval())
         except Exception as e:
             update_health_log("Service has crashed. Will attempt to restart.")
-            logging.error("An error occurred: %s", e)
+            logging.error("An error occurred: %s", e, exc_info=True)
             await asyncio.sleep(5)
 
 

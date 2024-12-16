@@ -4,12 +4,15 @@
 
 **SpeakerSaver** is a Python-based solution designed to automatically manage and control your powered speakers connected via a smart plug. The primary goal is to ensure your speakers are turned off when not in use, specifically when no music has been played for a certain period or when the connected TV is off. This project also provides health monitoring, allowing you to check the status of the system.
 
+This project is heavily customized for my own personal setup. However, it should be easy for anyone to fork this repository and modify the controllers for their own need.
+
 ## Features
 
 - Automatically turns off speakers if no music is playing on Spotify or the TV is off.
-- Integrates with Kasa smart plugs to control the power state of the speakers.
+- Integrates with Kasa smart plugs to control the power state of the speakers and connected audio mixer.
 - Includes a health check endpoint to monitor the status of the running service.
 - Logs system activities, with automatic log rotation to prevent log file overflow.
+- Presents a UI for easily turning speakers on or off, as well as viewing current state of the system.
 
 ## Setup and Installation
 
@@ -44,25 +47,19 @@ This script will generate a `.env` file with your configurations.
 
 ### 4. Authorize Spotify Access
 
-The first time you run the `api.py` script, you'll need to authorize your Spotify app. Start the Flask server:
+The first time you run the `api.py` script, you'll need to authorize your Spotify app. Start the Quart server:
 
 ```bash
 python -m src.api
 ```
 
-Navigate to the `/authorize` endpoint in your browser to complete the Spotify authorization process. For example, if you're running the Flask server locally, visit `http://localhost:8888/authorize`.
+Navigate to the `/authorize` endpoint in your browser to complete the Spotify authorization process. For example, if you're running the Quart server locally, visit `http://localhost:8888/authorize`.
 
 ## Running the Project
 
 ### 1. Running Locally
 
-To run the main monitoring script:
-
-```bash
-python -m src.main
-```
-
-To start the Flask server for handling Spotify authorization and exposing health endpoints:
+To start the app, including the monitoring script and the Quart server:
 
 ```bash
 python -m src.api
@@ -78,6 +75,8 @@ Use `scp` to copy the entire project directory to your Raspberry Pi:
 scp -r /path/to/speakersaver pi@<raspberry_pi_ip>:/home/pi/speakersaver
 ```
 
+Alternatively, clone the git repository from inside your Raspberry Pi.
+
 #### Step 2: Set Up the Environment on Raspberry Pi
 
 SSH into your Raspberry Pi and navigate to the project directory:
@@ -92,7 +91,6 @@ Create and activate a virtual environment, then install dependencies:
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
 ```
 
 Run the setup script:
@@ -122,7 +120,9 @@ sleep 10
 echo "Starting virtual environment"
 cd /home/plisker/speaker-saver
 source venv/bin/activate
-echo "Virtual environment is ready"
+pip install -r requirements.txt
+pip install -r requirements-rpi.txt
+echo "Virtual environment is ready and dependencies are installed"
 
 env > /home/plisker/speaker-saver/script_env.txt
 
@@ -131,12 +131,7 @@ python -m src.api &
 API_PID=$!
 echo "API server script started with PID: $API_PID"
 
-python -m src.main &
-MAIN_PID=$!
-echo "Main script started with PID: $MAIN_PID"
-
 wait $API_PID
-wait $MAIN_PID
 ```
 
 ##### Step 2: Create a `systemd` service to start your project automatically on boot
@@ -183,7 +178,9 @@ sudo apt remove python3-rpi.gpio
 
 ## Health Monitoring
 
-SpeakerSaver logs its health status to `health.log` and makes this information available through an HTTP endpoint exposed by the Flask server. You can monitor the system’s health by visiting the `/health` endpoint provided by the Flask server and a simple log in the `/logs` endpoint.
+SpeakerSaver logs its health status to `health.log` and makes this information available through an HTTP endpoint exposed by the Quart server. You can monitor the system’s health by visiting the `/health` endpoint provided by the Quart server and a simple log in the `/logs` endpoint.
+
+You can control the speakers and view the state of the system at the root `/` endpoint.
 
 ## Port Forwarding
 
@@ -196,10 +193,6 @@ Host raspberrypi
     LocalForward 8888 127.0.0.1:8888
 ```
 
-After running `ssh raspberrypi`, you will be able to access the endpoints on your computer by navigating to `http://localhost:8888`. For example, the `/health` endpoing will be [`http://localhost:8888/health`](http://localhost:8888/health).
+After running `ssh raspberrypi`, you will be able to access the endpoints on your computer by navigating to `http://localhost:8888`. For example, the `/health` endpoint will be [`http://localhost:8888/health`](http://localhost:8888/health).
 
 Please note that the `HostName` may differ depending on your Raspberry Pi's configuration.
-
-## Future Enhancements
-
-PIP Distribution: In the future, the project will be packaged for easy installation via PIP, eliminating the need for manual SCP transfers.

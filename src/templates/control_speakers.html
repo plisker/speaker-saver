@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,18 +19,26 @@
 
         h1 {
             font-size: 2.5rem;
-            color: #444;
             margin-bottom: 20px;
         }
 
         .message {
-            margin: 20px 0;
-            padding: 10px 15px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
             background-color: #dff0d8;
             color: #3c763d;
-            border: 1px solid #d6e9c6;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e7f3fe;
+            color: #31708f;
+            border: 1px solid #bce8f1;
             border-radius: 5px;
             font-size: 1.2rem;
+            text-align: center;
         }
 
         .button-container {
@@ -40,56 +47,34 @@
         }
 
         button {
-            padding: 15px 30px;
+            padding: 10px 20px;
             font-size: 1.2rem;
             font-weight: bold;
-            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:focus {
-            outline: none;
         }
 
         .btn-on {
             background-color: #28a745;
-        }
-
-        .btn-on:hover {
-            background-color: #218838;
+            color: white;
         }
 
         .btn-off {
             background-color: #dc3545;
-        }
-
-        .btn-off:hover {
-            background-color: #c82333;
-        }
-
-        footer {
-            margin-top: 40px;
-            font-size: 0.9rem;
-            color: #888;
+            color: white;
         }
     </style>
 </head>
-
 <body>
     <h1>Speaker Control</h1>
     {% if message %}
-    <div class="message">{{ message }}</div>
+        <div class="message">{{ message }}</div>
     {% endif %}
+    <div class="status">{{ status_message }}</div>
     <form method="POST" class="button-container">
         <button type="submit" name="action" value="on" class="btn-on">Turn On</button>
         <button type="submit" name="action" value="off" class="btn-off">Turn Off</button>
     </form>
-    <footer>
-        Created by <a href="https://projects.lisker.me/" target="_blank">Paul Lisker</a>.
-    </footer>
 </body>
-
 </html>

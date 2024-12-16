@@ -1,6 +1,7 @@
-from flask import Flask, redirect, request
+from flask import Flask, redirect, render_template, request
 
 from src.controllers.utils.instances import get_spotify_controller
+from src.main import turn_off_speakers, turn_on_speakers
 from src.utils.logging import HEALTH_LOG_FILE
 
 app = Flask(__name__)
@@ -39,6 +40,25 @@ def get_logs():
         return logs, 200
     except FileNotFoundError:
         return "Log file not found.", 404
+
+
+@app.route("/control_speakers", methods=["GET", "POST"])
+async def control_speakers():
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "on":
+            await turn_on_speakers()
+            return render_template(
+                "control_speakers.html", message="Speakers turned on"
+            )
+        elif action == "off":
+            await turn_off_speakers()
+            return render_template(
+                "control_speakers.html", message="Speakers turned off"
+            )
+        else:
+            return render_template("control_speakers.html", message="Invalid action.")
+    return render_template("control_speakers.html")
 
 
 def main():

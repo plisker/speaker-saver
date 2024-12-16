@@ -1,4 +1,4 @@
 requests
 python-kasa
-flask
+flask[async]
 python-dotenv

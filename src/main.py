@@ -1,8 +1,11 @@
 import asyncio
 import atexit
 import logging
-from typing import List, Tuple
+import time
+from typing import List, Optional, Tuple
+
 from dotenv import load_dotenv
+
 from src.controllers.controller_interface import Controller
 from src.controllers.utils.instances import (
     get_button_controller,
@@ -39,12 +42,25 @@ playback_counter = get_playback_counter()
 
 async def check_all_controllers(
     controllers: List[Controller],
-) -> Tuple[bool, str]:
+) -> Tuple[bool, Optional[str]]:
     """Check all controllers to see if any are active."""
     for controller in controllers:
         if await controller.is_active():
             return True, controller.NAME
-    return False, controller.NAME
+    return False, None
+
+
+async def turn_on_speakers():
+    await mixer_controller.turn_on()
+    time.sleep(2)
+    await speakers_controller.turn_on()
+    playback_counter.reset()
+
+
+async def turn_off_speakers():
+    await speakers_controller.turn_off()
+    time.sleep(2)
+    await mixer_controller.turn_off()
 
 
 async def monitor_and_control_speakers():
@@ -76,9 +92,10 @@ async def monitor_and_control_speakers():
             # If yes, turn on speakers
             if is_any_active:
                 logging.info(
-                    f"{active_name} is in use. Speakers will be turned on if necessary."
+                    "%s is in use. Speakers will be turned on if necessary.",
+                    active_name,
                 )
-                await mixer_controller.turn_on()
+                await turn_on_speakers()
 
             # Otherwise, check rest of controllers
             if not is_any_active:
@@ -87,15 +104,17 @@ async def monitor_and_control_speakers():
             if not is_any_active:
                 playback_counter.increment()
                 logging.info(
-                    f"No playback detected. {playback_counter.get_minutes_left()} minutes until speaker shutoff."
+                    "No playback detected. %s minutes until speaker shutoff.",
+                    playback_counter.get_minutes_left(),
                 )
                 update_health_log(
-                    f"Service is running. {playback_counter.get_minutes_left()} minutes until speaker shutoff attempt"
+                    f"Service is running. {playback_counter.get_minutes_left()} "
+                    f"minutes until speaker shutoff attempt"
                 )
             else:
                 playback_counter.reset()
                 logging.info(
-                    f"Speakers are in use through {active_name}. Counter reset."
+                    "Speakers are in use through %s. Counter reset.", active_name
                 )
                 update_health_log(
                     f"Service is running. Speakers are in use through {active_name}."
@@ -105,13 +124,13 @@ async def monitor_and_control_speakers():
                 logging.info(
                     "No playback for threshold duration. Turning off speakers if necessary."
                 )
-                await speakers_controller.turn_off()
+                await turn_off_speakers()
                 playback_counter.reset()  # Reset the counter after turning off speakers
 
             await asyncio.sleep(playback_counter.get_check_interval())
         except Exception as e:
             update_health_log("Service has crashed")
-            logging.error(f"An error occurred: {e}")
+            logging.error("An error occurred: %s", e)
 
 
 def cleanup_gpio():

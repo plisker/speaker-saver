@@ -1,5 +1,7 @@
 import os
+
 from dotenv import load_dotenv
+
 from src.controllers.smart_plug_controller import SmartPlugController
 from src.controllers.spotify_controller import SpotifyController
 from src.controllers.tv_controller import TVController

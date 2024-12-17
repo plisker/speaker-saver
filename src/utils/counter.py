@@ -18,15 +18,12 @@ class PlaybackCounter:
     def __init__(self, threshold_minutes=20, check_frequency_minutes=0.5):
         self.threshold_minutes = threshold_minutes
         self.check_frequency_minutes = check_frequency_minutes
-        self.last_active_time = None
         self.shutoff_time = datetime.now() + timedelta(minutes=self.threshold_minutes)
         self.shutoff_time.replace(second=0, microsecond=0)
 
     def reset(self) -> None:
         """Reset the last active time to now."""
-        self.last_active_time = datetime.now()
-
-        shutoff_time = self.last_active_time + timedelta(minutes=self.threshold_minutes)
+        shutoff_time = datetime.now() + timedelta(minutes=self.threshold_minutes)
         self.shutoff_time = shutoff_time.replace(second=0, microsecond=0)
         logging.info("New shutoff time is %s.", self.shutoff_time)
 

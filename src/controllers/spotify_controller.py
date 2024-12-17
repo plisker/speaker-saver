@@ -4,6 +4,7 @@ import time
 
 import requests
 from quart import Response, redirect
+from tenacity import *
 
 from src.controllers.controller_interface import Controller
 
@@ -31,6 +32,7 @@ class SpotifyController(Controller):
         return "Spotify"
 
     def load_tokens(self) -> None:
+        """Loads Spotify tokens from token file, if it exists"""
         try:
             with open(self.token_file, "r") as file:
                 lines = file.readlines()
@@ -97,7 +99,18 @@ class SpotifyController(Controller):
         self.save_tokens()
         return self.access_token
 
+    @retry(
+        stop=stop_after_attempt(5),  # Retry up to 5 times
+        wait=wait_exponential(
+            multiplier=2, min=1, max=10
+        ),  # Exponential backoff (2^x seconds)
+        retry=retry_if_exception_type(requests.HTTPError),  # Retry only for HTTP errors
+        reraise=True,  # Reraise the exception if retries fail
+        before=before_log(logging.getLogger("SpotifyController"), logging.INFO),
+        after=after_log(logging.getLogger("SpotifyController"), logging.INFO),
+    )
     async def refresh_access_token(self) -> None:
+        """Refreshes Spotify token with appropriate retry logic"""
         if not self.refresh_token:
             logging.error("No refresh token available.")
             return
@@ -112,30 +125,33 @@ class SpotifyController(Controller):
             "grant_type": "refresh_token",
             "refresh_token": self.refresh_token,
         }
+
         response = requests.post(self.token_url, headers=headers, data=data)
-        print(response)
-        try:
-            response_data = response.json()
-        except Exception as e:
-            logging.warning(e, exc_info=True)
+        response.raise_for_status()  # Raise HTTPError for bad responses
+
+        response_data = response.json()
         self.access_token = response_data.get("access_token")
-        self.refresh_token = response_data.get("refresh_token")
+        # Keep old refresh token if missing
+        self.refresh_token = response_data.get("refresh_token", self.refresh_token)
         self.expires_in = response_data.get("expires_in")
         self.token_issued_at = time.time()
 
         # Save the new access token
         self.save_tokens()
+        logging.info("Access token refreshed successfully.")
 
-    def is_token_expired(self) -> bool:
+    def should_refresh_token(self) -> bool:
         """Check if the access token has expired."""
         if not self.token_issued_at or not self.expires_in:
             return True
-        return time.time() > int(self.token_issued_at) + int(self.expires_in)
+        return time.time() > (
+            float(self.token_issued_at) + float(self.expires_in) - 300.0
+        )
 
     async def ensure_token_valid(self) -> None:
         """Refresh the token if it has expired."""
-        if self.is_token_expired():
-            logging.info("Access token expired. Refreshing...")
+        if self.should_refresh_token():
+            logging.info("Spotify access token should be refreshed. Refreshing...")
             await self.refresh_access_token()
 
     async def is_active(self) -> bool:

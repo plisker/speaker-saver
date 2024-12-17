@@ -131,6 +131,7 @@ async def monitor_and_control_speakers(system_state: SystemState):
                 )
                 await turn_off_speakers()
                 system_state.update_state(current_service=None)
+                playback_counter.reset()
 
             await asyncio.sleep(playback_counter.get_check_interval())
         except Exception as e:

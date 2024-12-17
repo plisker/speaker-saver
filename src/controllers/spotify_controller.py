@@ -31,6 +31,7 @@ class SpotifyController(Controller):
         return "Spotify"
 
     def load_tokens(self) -> None:
+        """Loads Spotify tokens from token file, if it exists"""
         try:
             with open(self.token_file, "r") as file:
                 lines = file.readlines()
@@ -126,16 +127,18 @@ class SpotifyController(Controller):
         # Save the new access token
         self.save_tokens()
 
-    def is_token_expired(self) -> bool:
+    def should_refresh_token(self) -> bool:
         """Check if the access token has expired."""
         if not self.token_issued_at or not self.expires_in:
             return True
-        return time.time() > int(self.token_issued_at) + int(self.expires_in)
+        return time.time() > (
+            float(self.token_issued_at) + int(self.expires_in) - 300.0
+        )
 
     async def ensure_token_valid(self) -> None:
         """Refresh the token if it has expired."""
-        if self.is_token_expired():
-            logging.info("Access token expired. Refreshing...")
+        if self.should_refresh_token():
+            logging.info("Access token should be refreshed. Refreshing...")
             await self.refresh_access_token()
 
     async def is_active(self) -> bool:

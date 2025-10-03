@@ -11,7 +11,8 @@ from src.controllers.utils.instances import (
     get_mixer_controller,
     get_playback_counter,
     get_speakers_controller,
-    get_spotify_controller,
+    get_spotify_controller_1,
+    get_spotify_controller_2,
     get_tv_controller,
 )
 from src.system_state import SystemState
@@ -32,7 +33,8 @@ except ImportError:
     GPIO_INSTALLED = False
 
 
-spotify_controller = get_spotify_controller()
+spotify_controller_1 = get_spotify_controller_1()
+spotify_controller_2 = get_spotify_controller_2()
 tv_controller = get_tv_controller()
 speakers_controller = get_speakers_controller()
 mixer_controller = get_mixer_controller()
@@ -70,16 +72,17 @@ async def monitor_and_control_speakers(system_state: SystemState):
     in use, and attempts to shut them off after idling."""
     logging.info("Beginning monitoring of speakers.")
 
-    controllers: list[Controller] = [spotify_controller]
+    controllers: list[Controller] = [spotify_controller_1, spotify_controller_2]
     controllers_turn_on_speakers: list[Controller] = [tv_controller]
 
     while True:
-        if not spotify_controller.access_token:
-            logging.error(
-                "Access token not found. Please run the authorization script first."
-            )
-            await asyncio.sleep(playback_counter.get_check_interval())
-            continue
+        for spotify_controller in [spotify_controller_1, spotify_controller_2]:
+            if not spotify_controller.access_token:
+                logging.error(
+                    "Access token not found. Please run the authorization script first."
+                )
+                await asyncio.sleep(playback_counter.get_check_interval())
+                continue
 
         try:
             update_health_log("Service is running... starting checks.")

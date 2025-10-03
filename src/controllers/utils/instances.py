@@ -13,11 +13,20 @@ load_dotenv()
 _playback_counter_instance = None
 
 
-def get_spotify_controller():
+def get_spotify_controller_1():
     return SpotifyController(
-        client_id=os.getenv("CLIENT_ID"),
-        client_secret=os.getenv("CLIENT_SECRET"),
-        redirect_uri="http://localhost:8888/callback",
+        client_id=os.getenv("CLIENT_ID_1"),
+        client_secret=os.getenv("CLIENT_SECRET_1"),
+        redirect_uri="http://localhost:8888/callback/1",
+        token_file="spotify_token_1.txt",
+    )
+
+def get_spotify_controller_2():
+    return SpotifyController(
+        client_id=os.getenv("CLIENT_ID_2"),
+        client_secret=os.getenv("CLIENT_SECRET_2"),
+        redirect_uri="http://localhost:8888/callback/2",
+        token_file="spotify_token_2.txt",
     )
 
 

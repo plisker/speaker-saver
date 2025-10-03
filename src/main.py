@@ -21,6 +21,7 @@ from src.utils.logging import set_up_logging, update_health_log
 load_dotenv()
 set_up_logging()
 
+logger = logging.getLogger("Main")
 
 try:
     import RPi.GPIO as GPIO  # type: ignore
@@ -133,6 +134,7 @@ async def monitor_and_control_speakers(system_state: SystemState):
                 system_state.update_state(current_service=None)
                 playback_counter.reset()
 
+            logger.info(f"Next check in {playback_counter.get_check_interval()} seconds.")
             await asyncio.sleep(playback_counter.get_check_interval())
         except Exception as e:
             update_health_log("Service has crashed. Will attempt to restart.")

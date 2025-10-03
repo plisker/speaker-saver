@@ -4,14 +4,28 @@ import time
 
 import requests
 from quart import Response, redirect
-from tenacity import *
+from tenacity import (
+    after_log,
+    before_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from src.controllers.controller_interface import Controller
+
+logger = logging.getLogger("SpotifyController")
 
 
 class SpotifyController(Controller):
     def __init__(
-        self, client_id, client_secret, redirect_uri, token_file="spotify_token.txt"
+        self,
+        client_id,
+        client_secret,
+        redirect_uri,
+        token_file="spotify_token.txt",
+        list_devices_on_init=False,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -26,6 +40,8 @@ class SpotifyController(Controller):
 
         # Load the saved tokens if available
         self.load_tokens()
+        if list_devices_on_init:
+            self.print_devices()
 
     @property
     def NAME(self) -> str:
@@ -47,7 +63,7 @@ class SpotifyController(Controller):
                         self.token_issued_at = float(line.strip().split("=")[1])
 
         except FileNotFoundError:
-            logging.warning("Token file not found, Spotify authentication required.")
+            logger.warning("Token file not found, Spotify authentication required.")
 
     def get_authorization_url(self):
         """Generate the Spotify authorization URL."""
@@ -112,7 +128,7 @@ class SpotifyController(Controller):
     async def refresh_access_token(self) -> None:
         """Refreshes Spotify token with appropriate retry logic"""
         if not self.refresh_token:
-            logging.error("No refresh token available.")
+            logger.error("No refresh token available.")
             return
 
         headers = {
@@ -138,7 +154,7 @@ class SpotifyController(Controller):
 
         # Save the new access token
         self.save_tokens()
-        logging.info("Access token refreshed successfully.")
+        logger.info("Access token refreshed successfully.")
 
     def should_refresh_token(self) -> bool:
         """Check if the access token has expired."""
@@ -151,15 +167,43 @@ class SpotifyController(Controller):
     async def ensure_token_valid(self) -> None:
         """Refresh the token if it has expired."""
         if self.should_refresh_token():
-            logging.info("Spotify access token should be refreshed. Refreshing...")
+            logger.info("Spotify access token should be refreshed. Refreshing...")
             await self.refresh_access_token()
+
+    def print_devices(self):
+        """Fetch and print all available Spotify devices for the account."""
+        if not self.access_token:
+            logger.info("No access token available. Please authenticate first.")
+            return
+        url = "https://api.spotify.com/v1/me/player/devices"
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                devices = response.json().get("devices", [])
+                logger.info("Available Spotify Devices:")
+                for device in devices:
+                    logger.info(
+                        f"  Name: {device.get('name')}, ID: {device.get('id')}, Type: {device.get('type')}, Active: {device.get('is_active')}"
+                    )
+            else:
+                logger.info(
+                    f"Failed to fetch devices: {response.status_code} {response.text}"
+                )
+        except Exception as e:
+            logger.info(f"Error fetching devices: {e}")
 
     async def is_active(self) -> bool:
         await self.ensure_token_valid()
-        url = "https://api.spotify.com/v1/me/player"
+        url = "https://api.spotify.com/v1/me/player/devices"
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            data = response.json()
-            return data.get("is_playing", False)
-        return False
+            devices = response.json().get("devices", [])
+            for device in devices:
+                print(f"Device ID: {device.get('id')}, Active: {device.get('is_active')}, Name: {device.get('name')}")
+                # if device.get("id") == self.spotify_device_id:
+                #     return device.get("is_active", False)
+            return False
+        else:
+            return False

@@ -3,3 +3,4 @@ python-kasa
 quart
 python-dotenv
 tenacity
+python-mpd2

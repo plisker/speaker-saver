@@ -201,8 +201,9 @@ class SpotifyController(Controller):
         if response.status_code == 200:
             devices = response.json().get("devices", [])
             for device in devices:
-                if device.get("id") == self.spotify_device_id:
-                    return device.get("is_active", False)
+                print(f"Device ID: {device.get('id')}, Active: {device.get('is_active')}, Name: {device.get('name')}")
+                # if device.get("id") == self.spotify_device_id:
+                #     return device.get("is_active", False)
             return False
         else:
             return False

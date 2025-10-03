@@ -18,6 +18,7 @@ def get_spotify_controller():
         client_id=os.getenv("CLIENT_ID"),
         client_secret=os.getenv("CLIENT_SECRET"),
         redirect_uri="http://localhost:8888/callback",
+        list_devices_on_init=True,
     )
 
 

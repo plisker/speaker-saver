@@ -15,7 +15,7 @@ class PlaybackCounter:
         shutoff_time (Optional[datetime]): The calculated time to shut off the speakers.
     """
 
-    def __init__(self, threshold_minutes=20, check_frequency_minutes=0.5):
+    def __init__(self, threshold_minutes=20, check_frequency_minutes=0.1):
         self.threshold_minutes = threshold_minutes
         self.check_frequency_minutes = check_frequency_minutes
         self.shutoff_time = datetime.now() + timedelta(minutes=self.threshold_minutes)

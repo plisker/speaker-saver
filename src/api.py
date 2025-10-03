@@ -2,7 +2,10 @@ import asyncio
 
 from quart import Quart, redirect, render_template, request, url_for
 
-from src.controllers.utils.instances import get_spotify_controller
+from src.controllers.utils.instances import (
+    get_spotify_controller_1,
+    get_spotify_controller_2,
+)
 from src.main import monitor_and_control_speakers, turn_off_speakers, turn_on_speakers
 from src.system_state import SystemState
 from src.utils.logging import HEALTH_LOG_FILE
@@ -10,19 +13,32 @@ from src.utils.logging import HEALTH_LOG_FILE
 app = Quart(__name__)
 system_state = SystemState()
 
-spotify_controller = get_spotify_controller()
+spotify_controller_1 = get_spotify_controller_1()
+spotify_controller_2 = get_spotify_controller_2()
 
 
-@app.route("/authorize")
-async def authorize():
+@app.route("/authorize/<int:number>")
+async def authorize(number: int):
     """Endpoint to initiate authorization with Spotify."""
+    if number == 1:
+        spotify_controller = spotify_controller_1
+    elif number == 2:
+        spotify_controller = spotify_controller_2
+    else:
+        return "Invalid controller number.", 400
     auth_url = spotify_controller.get_authorization_url()
     return redirect(auth_url)
 
 
-@app.route("/callback")
-async def callback():
+@app.route("/callback/<int:number>")
+async def callback(number: int):
     """Callback endpoint after authorization with Spotify."""
+    if number == 1:
+        spotify_controller = spotify_controller_1
+    elif number == 2:
+        spotify_controller = spotify_controller_2
+    else:
+        return "Invalid controller number.", 400
     code = request.args.get("code")
     if code:
         access_token = spotify_controller.get_access_token(code)
